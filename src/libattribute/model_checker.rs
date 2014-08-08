@@ -75,8 +75,6 @@ fn match_lit(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLitMod
     (MLitByte(value), LitByte(val)) => MLitByte(value.update(cx, val, sp)),
     (MLitChar(value), LitChar(val)) => MLitChar(value.update(cx, val, sp)),
     (MLitInt(value), LitInt(val, ty)) => MLitInt(value.update(cx, (val, ty), sp)),
-    (MLitUint(value), LitUint(val, ty)) => MLitUint(value.update(cx, (val, ty), sp)),
-    (MLitIntUnsuffixed(value), LitIntUnsuffixed(val)) => MLitIntUnsuffixed(value.update(cx, val, sp)),
     (MLitFloat(value), LitFloat(val, ty)) => MLitFloat(value.update(cx, (val, ty), sp)),
     (MLitFloatUnsuffixed(value), LitFloatUnsuffixed(val)) => MLitFloatUnsuffixed(value.update(cx, val, sp)),
     (MLitNil(value), LitNil) => MLitNil(value.update(cx, (), sp)),
