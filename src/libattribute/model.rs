@@ -61,6 +61,11 @@ impl<T: Clone> AttributeValue<T>
       Some(ref value) => value.clone()
     }
   }
+
+  pub fn span(&self) -> Span
+  {
+    self.span.clone()
+  }
 }
 
 pub struct AttributeInfo
@@ -155,6 +160,11 @@ impl AttributeDict
   pub fn push(&mut self, attr: AttributeInfo)
   {
     self.dict.push(attr);
+  }
+
+  pub fn push_all(&mut self, attrs: Vec<AttributeInfo>)
+  {
+    self.dict.push_all_move(attrs);
   }
 
   pub fn get<'a>(&'a self, name: &'static str) -> &'a AttributeInfo
