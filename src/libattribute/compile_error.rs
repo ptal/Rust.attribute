@@ -72,6 +72,11 @@ impl DuplicateAttribute
     DuplicateAttribute::new(level, None)
   }
 
+  pub fn error(extra_msg: &'static str) -> DuplicateAttribute
+  {
+    DuplicateAttribute::new(Error, Some(extra_msg))
+  }
+
   pub fn issue<'a>(&self, cx: &'a ExtCtxt, span: Span, previous_span: Span) -> bool
   {
     let extra_msg = self.extra_msg.unwrap_or("");
