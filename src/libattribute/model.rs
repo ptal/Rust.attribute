@@ -21,9 +21,9 @@ use std::rc::Rc;
 
 pub struct AttributeValue<T>
 {
-  value: Option<T>,
-  duplicate: DuplicateAttribute,
-  span: Span
+  pub value: Option<T>,
+  pub span: Span,
+  duplicate: DuplicateAttribute
 }
 
 impl<T: Clone> AttributeValue<T>
