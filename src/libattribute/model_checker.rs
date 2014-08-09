@@ -90,7 +90,7 @@ fn match_sub_attributes(cx: &ExtCtxt, model: AttributeDict, meta_items: Vec<Gc<M
 
 fn model_mismatch(cx: &ExtCtxt, model: AttributeModel, meta_item: &Gc<MetaItem>) -> AttributeModel
 {
-  cx.parse_sess.span_diagnostic.span_err(meta_item.span, "Model mismatch.");
+  cx.span_err(meta_item.span, "Model mismatch.");
   model
 }
 
@@ -98,7 +98,7 @@ fn lit_mismatch(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLit
 {
   let mlit_printer = mlit.to_lit_printer();
   let lit_printer = lit_to_lit_printer(&lit.node);
-  cx.parse_sess.span_diagnostic.span_err(lit.span,
+  cx.span_err(lit.span,
     format!("Expected {} literal (e.g. `key = {}`) but got {} literal (e.g. `key = {}`).", 
       mlit_printer.type_to_str(), mlit_printer.type_example_to_str(),
       lit_printer.type_to_str(), lit_printer.type_example_to_str()).as_slice());
@@ -107,6 +107,6 @@ fn lit_mismatch(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLit
 
 fn unknown_attribute(cx: &ExtCtxt, _meta_name: InternedString, span: Span)
 {
-  cx.parse_sess.span_diagnostic.span_err(span, "Unknown attribute.");
+  cx.span_err(span, "Unknown attribute.");
   // model.doc_approaching_results(cx, context, meta_name, span);
 }

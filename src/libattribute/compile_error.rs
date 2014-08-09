@@ -28,8 +28,8 @@ impl CompileErrorLevel
   {
     match *self {
       Silent => (),
-      Warn => cx.parse_sess.span_diagnostic.span_warn(span, msg),
-      Error => cx.parse_sess.span_diagnostic.span_err(span, msg)
+      Warn => cx.span_warn(span, msg),
+      Error => cx.span_err(span, msg)
     }
   }
 
@@ -78,7 +78,7 @@ impl DuplicateAttribute
     self.level.issue(cx, span,
       format!("Duplicate attribute. {}", extra_msg).as_slice());
     if !self.level.is_silent() {
-      cx.parse_sess.span_diagnostic.span_note(previous_span,
+      cx.span_note(previous_span,
         "Previous declaration here.");
     }
     self.level.is_error()
