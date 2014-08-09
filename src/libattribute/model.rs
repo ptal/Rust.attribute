@@ -93,6 +93,22 @@ impl AttributeInfo
     this.model = model;
     this
   }
+
+  pub fn plain_value<'a>(&'a self) -> &'a AttributeValue<bool>
+  {
+    match self.model {
+      NoProperty(ref v) => v,
+      _ => fail!("No plain value for the current attribute.")
+    }
+  }
+
+  pub fn sub_model<'a>(&'a self) -> &'a AttributeDict
+  {
+    match self.model {
+      SubAttribute(ref dict) => dict,
+      _ => fail!("No sub value for the attribute.")
+    }
+  }
 }
 
 pub enum AttributeModel
@@ -141,6 +157,31 @@ impl AttributeDict
     self.dict.push(attr);
   }
 
+  pub fn get<'a>(&'a self, name: &'static str) -> &'a AttributeInfo
+  {
+    let interned = InternedString::new(name);
+    for info in self.dict.iter() {
+      if info.name == interned {
+        return info;
+      }
+    }
+    fail!("Try to get an attribute that doesn't exist.")
+  }
+
+  pub fn plain_value<'a>(&'a self, name: &'static str) -> &'a AttributeValue<bool>
+  {
+    self.get(name).plain_value()
+  }
+
+  pub fn sub_model<'a>(&'a self, name: &'static str) -> &'a AttributeDict
+  {
+    self.get(name).sub_model()
+  }
+
+  pub fn plain_value_or(&self, name: &'static str, def: bool) -> bool
+  {
+    self.plain_value(name).value_or(def)
+  }
 
   // fn attribute_doc(&self)
   // {
