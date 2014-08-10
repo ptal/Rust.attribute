@@ -53,7 +53,7 @@ fn meta_item_name(meta_item: MetaItem_) -> InternedString
 fn match_model(cx: &ExtCtxt, info: AttributeInfo, meta_item: &Gc<MetaItem>) -> AttributeInfo
 {
   let model = match (info.model, meta_item.node.clone()) {
-    (NoProperty(value), MetaWord(_)) => NoProperty(match_value(cx, value, meta_item.span)),
+    (UnitValue(value), MetaWord(_)) => UnitValue(match_value(cx, value, meta_item.span)),
     (KeyValue(mlit), MetaNameValue(_, lit)) => KeyValue(match_lit(cx, mlit, lit)),
     (SubAttribute(dict), MetaList(_, list)) => SubAttribute(match_sub_attributes(cx, dict, list)),
     (model, _) => model_mismatch(cx, model, meta_item)
@@ -61,9 +61,9 @@ fn match_model(cx: &ExtCtxt, info: AttributeInfo, meta_item: &Gc<MetaItem>) -> A
   AttributeInfo { name: info.name, desc: info.desc, model: model }
 }
 
-fn match_value(cx: &ExtCtxt, value: AttributeValue<bool>, span: Span) -> AttributeValue<bool>
+fn match_value(cx: &ExtCtxt, value: AttributeValue<()>, span: Span) -> AttributeValue<()>
 {
-  value.update(cx, true, span)
+  value.update(cx, (), span)
 }
 
 fn match_lit(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLitModel

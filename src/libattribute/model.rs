@@ -54,6 +54,11 @@ impl<T: Clone> AttributeValue<T>
     this
   }
 
+  pub fn has_value(&self) -> bool
+  {
+    self.value.is_some()
+  }
+
   pub fn value_or(&self, default: T) -> T
   {
     match self.value {
@@ -89,7 +94,7 @@ impl AttributeInfo
 
   pub fn simple(name: &'static str, desc: &'static str) -> AttributeInfo
   {
-    AttributeInfo::new(name, desc, NoProperty(AttributeValue::simple()))
+    AttributeInfo::new(name, desc, UnitValue(AttributeValue::simple()))
   }
 
   pub fn update(self, model: AttributeModel) -> AttributeInfo
@@ -99,10 +104,10 @@ impl AttributeInfo
     this
   }
 
-  pub fn plain_value<'a>(&'a self) -> &'a AttributeValue<bool>
+  pub fn plain_value<'a>(&'a self) -> &'a AttributeValue<()>
   {
     match self.model {
-      NoProperty(ref v) => v,
+      UnitValue(ref v) => v,
       _ => fail!("No plain value for the current attribute.")
     }
   }
@@ -118,7 +123,7 @@ impl AttributeInfo
 
 pub enum AttributeModel
 {
-  NoProperty(AttributeValue<bool>),
+  UnitValue(AttributeValue<()>),
   KeyValue(AttributeLitModel),
   SubAttribute(AttributeDict)
 }
@@ -178,7 +183,7 @@ impl AttributeDict
     fail!("Try to get an attribute that doesn't exist.")
   }
 
-  pub fn plain_value<'a>(&'a self, name: &'static str) -> &'a AttributeValue<bool>
+  pub fn plain_value<'a>(&'a self, name: &'static str) -> &'a AttributeValue<()>
   {
     self.get(name).plain_value()
   }
@@ -190,7 +195,11 @@ impl AttributeDict
 
   pub fn plain_value_or(&self, name: &'static str, def: bool) -> bool
   {
-    self.plain_value(name).value_or(def)
+    if self.plain_value(name).has_value() {
+      true
+    } else {
+      def
+    }
   }
 
   // fn attribute_doc(&self)
@@ -204,7 +213,6 @@ impl AttributeDict
   //   self.cx.parse_sess.span_diagnostic.handler.note(doc.as_slice());
   // }
 }
-
 
 impl AttributeLitModel
 {
