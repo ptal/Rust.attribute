@@ -214,6 +214,72 @@ impl AttributeDict
   // }
 }
 
+pub struct AttributeMerger<'a>
+{
+  cx: &'a ExtCtxt<'a>,
+  duplicate: DuplicateAttribute
+}
+
+impl<'a> AttributeMerger<'a>
+{
+  pub fn new(cx: &'a ExtCtxt, duplicate: DuplicateAttribute) -> AttributeMerger<'a>
+  {
+    AttributeMerger {
+      cx: cx,
+      duplicate: duplicate
+    }
+  }
+
+  pub fn merge(&self, info: AttributeInfo, info2: AttributeInfo) -> AttributeInfo
+  {
+    assert!(info.name == info2.name);
+    let mut info = info;
+    info.model = match (info.model, info2.model) {
+      (UnitValue(val), UnitValue(val2)) => UnitValue(self.merge_value(val, val2)),
+      (KeyValue(lit), KeyValue(lit2)) => KeyValue(self.merge_lit(lit, lit2)),
+      (SubAttribute(sub), SubAttribute(sub2)) => SubAttribute(self.merge_sub_attr(sub, sub2)),
+      _ => fail!("Mismatch between attribute models during merging.")
+    };
+    info
+  }
+
+  fn merge_value<T>(&self, val: AttributeValue<T>, val2: AttributeValue<T>) -> AttributeValue<T>
+  {
+    match (&val.value, &val2.value) {
+      (&None, _) => val2,
+      (_, &None) => val,
+      (&Some(_), &Some(_)) => {
+        self.duplicate.issue(self.cx, val.span, val2.span);
+        val
+      }
+    }
+  }
+
+  fn merge_lit(&self, lit: AttributeLitModel, lit2: AttributeLitModel) -> AttributeLitModel
+  {
+    match (lit, lit2) {
+      (MLitStr(val), MLitStr(val2)) => MLitStr(self.merge_value(val, val2)),
+      (MLitBinary(val), MLitBinary(val2)) => MLitBinary(self.merge_value(val, val2)),
+      (MLitByte(val), MLitByte(val2)) => MLitByte(self.merge_value(val, val2)),
+      (MLitChar(val), MLitChar(val2)) => MLitChar(self.merge_value(val, val2)),
+      (MLitInt(val), MLitInt(val2)) => MLitInt(self.merge_value(val, val2)),
+      (MLitFloat(val), MLitFloat(val2)) => MLitFloat(self.merge_value(val, val2)),
+      (MLitFloatUnsuffixed(val), MLitFloatUnsuffixed(val2)) => MLitFloatUnsuffixed(self.merge_value(val, val2)),
+      (MLitNil(val), MLitNil(val2)) => MLitNil(self.merge_value(val, val2)),
+      (MLitBool(val), MLitBool(val2)) => MLitBool(self.merge_value(val, val2)),
+      _ => fail!("Mismatch between attribute models during merging.")
+    }
+  }
+
+  fn merge_sub_attr(&self, sub: AttributeDict, sub2: AttributeDict) -> AttributeDict
+  {
+    assert!(sub.dict.len() == sub2.dict.len());
+    AttributeDict::new(sub.dict.move_iter().zip(sub2.dict.move_iter())
+      .map(|(info, info2)| self.merge(info, info2))
+      .collect())
+  }
+}
+
 impl AttributeLitModel
 {
   pub fn to_lit_printer(&self) -> LitTypePrinter
