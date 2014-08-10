@@ -112,10 +112,10 @@ impl AttributeInfo
     }
   }
 
-  pub fn sub_model<'a>(&'a self) -> &'a AttributeDict
+  pub fn sub_model<'a>(&'a self) -> &'a AttributeArray
   {
     match self.model {
-      SubAttribute(ref dict) => dict,
+      SubAttribute(ref array) => array,
       _ => fail!("No sub value for the attribute.")
     }
   }
@@ -125,7 +125,7 @@ pub enum AttributeModel
 {
   UnitValue(AttributeValue<()>),
   KeyValue(AttributeLitModel),
-  SubAttribute(AttributeDict)
+  SubAttribute(AttributeArray)
 }
 
 pub enum AttributeLitModel
@@ -141,41 +141,15 @@ pub enum AttributeLitModel
   MLitBool(AttributeValue<bool>)
 }
 
-pub struct AttributeDict
+pub type AttributeArray = Vec<AttributeInfo>;
+
+pub mod access
 {
-  dict: Vec<AttributeInfo>
-}
-
-impl AttributeDict
-{
-  pub fn new(dict: Vec<AttributeInfo>) -> AttributeDict
-  {
-    AttributeDict {
-      dict: dict
-    }
-  }
-
-  pub fn move_map(self, f: |AttributeInfo| -> AttributeInfo) -> AttributeDict
-  {
-    let mut this = self;
-    this.dict = this.dict.move_iter().map(f).collect();
-    this
-  }
-
-  pub fn push(&mut self, attr: AttributeInfo)
-  {
-    self.dict.push(attr);
-  }
-
-  pub fn push_all(&mut self, attrs: Vec<AttributeInfo>)
-  {
-    self.dict.push_all_move(attrs);
-  }
-
-  pub fn get<'a>(&'a self, name: &'static str) -> &'a AttributeInfo
+  pub use super::*;
+  pub fn by_name<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeInfo
   {
     let interned = InternedString::new(name);
-    for info in self.dict.iter() {
+    for info in array.iter() {
       if info.name == interned {
         return info;
       }
@@ -183,36 +157,35 @@ impl AttributeDict
     fail!("Try to get an attribute that doesn't exist.")
   }
 
-  pub fn plain_value<'a>(&'a self, name: &'static str) -> &'a AttributeValue<()>
+  pub fn plain_value<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeValue<()>
   {
-    self.get(name).plain_value()
+    by_name(array, name).plain_value()
   }
 
-  pub fn sub_model<'a>(&'a self, name: &'static str) -> &'a AttributeDict
+  pub fn sub_model<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeArray
   {
-    self.get(name).sub_model()
+    by_name(array, name).sub_model()
   }
 
-  pub fn plain_value_or(&self, name: &'static str, def: bool) -> bool
+  pub fn plain_value_or(array: &AttributeArray, name: &'static str, def: bool) -> bool
   {
-    if self.plain_value(name).has_value() {
+    if plain_value(array, name).has_value() {
       true
     } else {
       def
     }
   }
-
-  // fn attribute_doc(&self)
-  // {
-  //   let mut doc = format!("Attribute `#[{}(<attribute list>)]`: {}\n",
-  //       self.root_name.get(), self.root_desc);
-  //   for info in self.infos.iter() {
-  //     doc.add(format!("  * `#[{}({})]`: {}\n",
-  //       self.root_name.get(), info.name, info.desc));
-  //   }
-  //   self.cx.parse_sess.span_diagnostic.handler.note(doc.as_slice());
-  // }
 }
+// fn attribute_doc(&self)
+// {
+//   let mut doc = format!("Attribute `#[{}(<attribute list>)]`: {}\n",
+//       self.root_name.get(), self.root_desc);
+//   for info in self.infos.iter() {
+//     doc.add(format!("  * `#[{}({})]`: {}\n",
+//       self.root_name.get(), info.name, info.desc));
+//   }
+//   self.cx.parse_sess.span_diagnostic.handler.note(doc.as_slice());
+// }
 
 pub struct AttributeMerger<'a>
 {
@@ -271,12 +244,13 @@ impl<'a> AttributeMerger<'a>
     }
   }
 
-  fn merge_sub_attr(&self, sub: AttributeDict, sub2: AttributeDict) -> AttributeDict
+  fn merge_sub_attr(&self, sub1: AttributeArray, sub2: AttributeArray) -> AttributeArray
   {
-    assert!(sub.dict.len() == sub2.dict.len());
-    AttributeDict::new(sub.dict.move_iter().zip(sub2.dict.move_iter())
+    assert!(sub1.len() == sub2.len());
+    sub1.move_iter()
+      .zip(sub2.move_iter())
       .map(|(info, info2)| self.merge(info, info2))
-      .collect())
+      .collect()
   }
 }
 

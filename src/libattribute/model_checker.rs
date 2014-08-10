@@ -15,26 +15,26 @@
 use model::*;
 use std::gc::Gc;
 
-pub fn check(cx: &ExtCtxt, model: AttributeDict, attr: Attribute) -> AttributeDict
+pub fn check(cx: &ExtCtxt, model: AttributeArray, attr: Attribute) -> AttributeArray
 {
   let meta_item = attr.node.value;
   match_meta_item(cx, model, &meta_item)
 }
 
 fn match_meta_item(cx: &ExtCtxt,
-  model: AttributeDict,
-  meta_item: &Gc<MetaItem>) -> AttributeDict
+  model: AttributeArray,
+  meta_item: &Gc<MetaItem>) -> AttributeArray
 {
   let meta_name = meta_item_name(meta_item.node.clone());
   let mut attr_exists = false;
-  let model = model.move_map(|info|
+  let model = model.move_iter().map(|info|
     if info.name == meta_name {
       attr_exists = true;
       match_model(cx, info, meta_item)
     } else {
       info
     }
-  );
+  ).collect();
   if !attr_exists {
     unknown_attribute(cx, meta_name, meta_item.span);
   }
@@ -83,7 +83,7 @@ fn match_lit(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLitMod
   }
 }
 
-fn match_sub_attributes(cx: &ExtCtxt, model: AttributeDict, meta_items: Vec<Gc<MetaItem>>) -> AttributeDict
+fn match_sub_attributes(cx: &ExtCtxt, model: AttributeArray, meta_items: Vec<Gc<MetaItem>>) -> AttributeArray
 {
   meta_items.iter().fold(model, |model, meta_item| match_meta_item(cx, model, meta_item))
 }
