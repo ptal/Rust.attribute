@@ -15,6 +15,7 @@
 pub use syntax::ext::base::ExtCtxt;
 pub use syntax::codemap::Span;
 
+#[deriving(Clone)]
 pub enum CompileErrorLevel
 {
   Silent,
@@ -50,6 +51,7 @@ impl CompileErrorLevel
   }
 }
 
+#[deriving(Clone)]
 pub struct DuplicateAttribute
 {
   level: CompileErrorLevel,

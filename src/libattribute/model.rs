@@ -19,6 +19,7 @@ pub use syntax::ast::*;
 use syntax::codemap::DUMMY_SP;
 use std::rc::Rc;
 
+#[deriving(Clone)]
 pub struct AttributeValue<T>
 {
   pub value: Option<T>,
@@ -73,6 +74,7 @@ impl<T: Clone> AttributeValue<T>
   }
 }
 
+#[deriving(Clone)]
 pub struct AttributeInfo
 {
   pub name: InternedString,
@@ -121,6 +123,7 @@ impl AttributeInfo
   }
 }
 
+#[deriving(Clone)]
 pub enum AttributeModel
 {
   UnitValue(AttributeValue<()>),
@@ -128,6 +131,7 @@ pub enum AttributeModel
   SubAttribute(AttributeArray)
 }
 
+#[deriving(Clone)]
 pub enum AttributeLitModel
 {
   MLitStr(AttributeValue<(InternedString, StrStyle)>),
