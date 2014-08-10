@@ -15,7 +15,7 @@
 use model::*;
 use std::gc::Gc;
 
-pub fn check_all(cx: &ExtCtxt, model: AttributeArray, attr: Vec<Attribute>) -> AttributeArray
+pub fn check_all(cx: &ExtCtxt, model: AttributeArray, attributes: Vec<Attribute>) -> AttributeArray
 {
   attributes.move_iter().fold(
     model, |model, attr| check(cx, model, attr)
