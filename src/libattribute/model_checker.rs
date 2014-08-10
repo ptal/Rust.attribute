@@ -15,6 +15,13 @@
 use model::*;
 use std::gc::Gc;
 
+pub fn check_all(cx: &ExtCtxt, model: AttributeArray, attr: Vec<Attribute>) -> AttributeArray
+{
+  attributes.move_iter().fold(
+    model, |model, attr| check(cx, model, attr)
+  )
+}
+
 pub fn check(cx: &ExtCtxt, model: AttributeArray, attr: Attribute) -> AttributeArray
 {
   let meta_item = attr.node.value;
