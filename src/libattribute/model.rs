@@ -179,11 +179,11 @@ pub mod access
     by_name(array, name).sub_model()
   }
 
-  pub fn lit_str<'a>(array: &'a AttributeArray, name: &'static str) -> Option<&'a AttributeValue<(InternedString, StrStyle)>>
+  pub fn lit_str<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeValue<(InternedString, StrStyle)>
   {
     match by_name(array, name).key_value() {
-      &MLitStr(ref val) => Some(val),
-      _ => None
+      &MLitStr(ref val) => val,
+      _ => fail!("No string literal available for this attribute.")
     }
   }
 
