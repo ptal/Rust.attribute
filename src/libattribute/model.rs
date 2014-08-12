@@ -118,7 +118,15 @@ impl AttributeInfo
   {
     match self.model {
       SubAttribute(ref array) => array,
-      _ => fail!("No sub value for the attribute.")
+      _ => fail!("No sub value for the current attribute.")
+    }
+  }
+
+  pub fn key_value<'a>(&'a self) -> &'a AttributeLitModel
+  {
+    match self.model {
+      KeyValue(ref lit) => lit,
+      _ => fail!("No key value for the current attribute.")
     }
   }
 }
@@ -169,6 +177,14 @@ pub mod access
   pub fn sub_model<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeArray
   {
     by_name(array, name).sub_model()
+  }
+
+  pub fn lit_str<'a>(array: &'a AttributeArray, name: &'static str) -> Option<&'a AttributeValue<(InternedString, StrStyle)>>
+  {
+    match by_name(array, name).key_value() {
+      &MLitStr(ref val) => Some(val),
+      _ => None
+    }
   }
 
   pub fn plain_value_or(array: &AttributeArray, name: &'static str, def: bool) -> bool
