@@ -267,8 +267,8 @@ impl<'a> AttributeMerger<'a>
   fn merge_sub_attr(&self, sub1: AttributeArray, sub2: AttributeArray) -> AttributeArray
   {
     assert!(sub1.len() == sub2.len());
-    sub1.move_iter()
-      .zip(sub2.move_iter())
+    sub1.into_iter()
+      .zip(sub2.into_iter())
       .map(|(info, info2)| self.merge(info, info2))
       .collect()
   }

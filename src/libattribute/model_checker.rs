@@ -13,11 +13,11 @@
 // limitations under the License.
 
 use model::*;
-use std::gc::Gc;
+use syntax::ptr::P;
 
 pub fn check_all(cx: &ExtCtxt, model: AttributeArray, attributes: Vec<Attribute>) -> AttributeArray
 {
-  attributes.move_iter().fold(
+  attributes.into_iter().fold(
     model, |model, attr| check(cx, model, attr)
   )
 }
@@ -30,11 +30,11 @@ pub fn check(cx: &ExtCtxt, model: AttributeArray, attr: Attribute) -> AttributeA
 
 fn match_meta_item(cx: &ExtCtxt,
   model: AttributeArray,
-  meta_item: &Gc<MetaItem>) -> AttributeArray
+  meta_item: &P<MetaItem>) -> AttributeArray
 {
   let meta_name = meta_item_name(meta_item.node.clone());
   let mut attr_exists = false;
-  let model = model.move_iter().map(|info|
+  let model = model.into_iter().map(|info|
     if info.name == meta_name {
       attr_exists = true;
       match_model(cx, info, meta_item)
@@ -57,7 +57,7 @@ fn meta_item_name(meta_item: MetaItem_) -> InternedString
   }
 }
 
-fn match_model(cx: &ExtCtxt, info: AttributeInfo, meta_item: &Gc<MetaItem>) -> AttributeInfo
+fn match_model(cx: &ExtCtxt, info: AttributeInfo, meta_item: &P<MetaItem>) -> AttributeInfo
 {
   let model = match (info.model, meta_item.node.clone()) {
     (UnitValue(value), MetaWord(_)) => UnitValue(match_value(cx, value, meta_item.span)),
@@ -90,12 +90,12 @@ fn match_lit(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLitMod
   }
 }
 
-fn match_sub_attributes(cx: &ExtCtxt, model: AttributeArray, meta_items: Vec<Gc<MetaItem>>) -> AttributeArray
+fn match_sub_attributes(cx: &ExtCtxt, model: AttributeArray, meta_items: Vec<P<MetaItem>>) -> AttributeArray
 {
   meta_items.iter().fold(model, |model, meta_item| match_meta_item(cx, model, meta_item))
 }
 
-fn model_mismatch(cx: &ExtCtxt, model: AttributeModel, meta_item: &Gc<MetaItem>) -> AttributeModel
+fn model_mismatch(cx: &ExtCtxt, model: AttributeModel, meta_item: &P<MetaItem>) -> AttributeModel
 {
   cx.span_err(meta_item.span, "Model mismatch.");
   model
