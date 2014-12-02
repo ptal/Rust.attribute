@@ -15,6 +15,9 @@
 use model::*;
 use syntax::ptr::P;
 
+use model::AttributeModel::*;
+use model::AttributeLitModel::*;
+
 pub fn check_all(cx: &ExtCtxt, model: AttributeArray, attributes: Vec<Attribute>) -> AttributeArray
 {
   attributes.into_iter().fold(
@@ -84,7 +87,6 @@ fn match_lit(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLitMod
     (MLitInt(value), LitInt(val, ty)) => MLitInt(value.update(cx, (val, ty), sp)),
     (MLitFloat(value), LitFloat(val, ty)) => MLitFloat(value.update(cx, (val, ty), sp)),
     (MLitFloatUnsuffixed(value), LitFloatUnsuffixed(val)) => MLitFloatUnsuffixed(value.update(cx, val, sp)),
-    (MLitNil(value), LitNil) => MLitNil(value.update(cx, (), sp)),
     (MLitBool(value), LitBool(val)) => MLitBool(value.update(cx, val, sp)),
     (mlit, _) => lit_mismatch(cx, mlit, lit)
   }
@@ -106,7 +108,7 @@ fn lit_mismatch(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLit
   let mlit_printer = mlit.to_lit_printer();
   let lit_printer = lit_to_lit_printer(&lit.node);
   cx.span_err(lit.span,
-    format!("Expected {} literal (e.g. `key = {}`) but got {} literal (e.g. `key = {}`).", 
+    format!("Expected {} literal (e.g. `key = {}`) but got {} literal (e.g. `key = {}`).",
       mlit_printer.type_to_str(), mlit_printer.type_example_to_str(),
       lit_printer.type_to_str(), lit_printer.type_example_to_str()).as_slice());
   mlit

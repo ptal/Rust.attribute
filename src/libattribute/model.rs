@@ -18,6 +18,10 @@ pub use syntax::ast::*;
 
 use syntax::codemap::DUMMY_SP;
 use std::rc::Rc;
+use model::AttributeModel::*;
+use model::LitTypePrinter::*;
+use model::AttributeLitModel::*;
+use compile_error::CompileErrorLevel::*;
 
 #[deriving(Clone)]
 pub struct AttributeValue<T>
@@ -84,7 +88,7 @@ pub struct AttributeInfo
 
 impl AttributeInfo
 {
-  pub fn new(name: &'static str, desc: &'static str, 
+  pub fn new(name: &'static str, desc: &'static str,
     model: AttributeModel) -> AttributeInfo
   {
     AttributeInfo {
@@ -110,7 +114,7 @@ impl AttributeInfo
   {
     match self.model {
       UnitValue(ref v) => v,
-      _ => fail!("No plain value for the current attribute.")
+      _ => panic!("No plain value for the current attribute.")
     }
   }
 
@@ -118,7 +122,7 @@ impl AttributeInfo
   {
     match self.model {
       SubAttribute(ref array) => array,
-      _ => fail!("No sub value for the current attribute.")
+      _ => panic!("No sub value for the current attribute.")
     }
   }
 
@@ -126,7 +130,7 @@ impl AttributeInfo
   {
     match self.model {
       KeyValue(ref lit) => lit,
-      _ => fail!("No key value for the current attribute.")
+      _ => panic!("No key value for the current attribute.")
     }
   }
 }
@@ -149,7 +153,6 @@ pub enum AttributeLitModel
   MLitInt(AttributeValue<(u64, LitIntType)>),
   MLitFloat(AttributeValue<(InternedString, FloatTy)>),
   MLitFloatUnsuffixed(AttributeValue<InternedString>),
-  MLitNil(AttributeValue<()>),
   MLitBool(AttributeValue<bool>)
 }
 
@@ -166,7 +169,7 @@ pub mod access
         return info;
       }
     }
-    fail!("Try to get an attribute that doesn't exist.")
+    panic!("Try to get an attribute that doesn't exist.")
   }
 
   pub fn plain_value<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeValue<()>
@@ -182,8 +185,8 @@ pub mod access
   pub fn lit_str<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeValue<(InternedString, StrStyle)>
   {
     match by_name(array, name).key_value() {
-      &MLitStr(ref val) => val,
-      _ => fail!("No string literal available for this attribute.")
+      &AttributeLitModel::MLitStr(ref val) => val,
+      _ => panic!("No string literal available for this attribute.")
     }
   }
 
@@ -231,7 +234,7 @@ impl<'a> AttributeMerger<'a>
       (UnitValue(val), UnitValue(val2)) => UnitValue(self.merge_value(val, val2)),
       (KeyValue(lit), KeyValue(lit2)) => KeyValue(self.merge_lit(lit, lit2)),
       (SubAttribute(sub), SubAttribute(sub2)) => SubAttribute(self.merge_sub_attr(sub, sub2)),
-      _ => fail!("Mismatch between attribute models during merging.")
+      _ => panic!("Mismatch between attribute models during merging.")
     };
     info
   }
@@ -258,9 +261,8 @@ impl<'a> AttributeMerger<'a>
       (MLitInt(val), MLitInt(val2)) => MLitInt(self.merge_value(val, val2)),
       (MLitFloat(val), MLitFloat(val2)) => MLitFloat(self.merge_value(val, val2)),
       (MLitFloatUnsuffixed(val), MLitFloatUnsuffixed(val2)) => MLitFloatUnsuffixed(self.merge_value(val, val2)),
-      (MLitNil(val), MLitNil(val2)) => MLitNil(self.merge_value(val, val2)),
       (MLitBool(val), MLitBool(val2)) => MLitBool(self.merge_value(val, val2)),
-      _ => fail!("Mismatch between attribute models during merging.")
+      _ => panic!("Mismatch between attribute models during merging.")
     }
   }
 
@@ -286,7 +288,6 @@ impl AttributeLitModel
       MLitInt(_) => PLitInt,
       MLitFloat(_) => PLitFloat,
       MLitFloatUnsuffixed(_) => PLitFloatUnsuffixed,
-      MLitNil(_) => PLitNil,
       MLitBool(_) => PLitBool
     }
   }
@@ -302,7 +303,6 @@ pub fn lit_to_lit_printer(lit: &Lit_) -> LitTypePrinter
     LitInt(_, _) => PLitInt,
     LitFloat(_, _) => PLitFloat,
     LitFloatUnsuffixed(_) => PLitFloatUnsuffixed,
-    LitNil => PLitNil,
     LitBool(_) => PLitBool
   }
 }
@@ -316,7 +316,6 @@ pub enum LitTypePrinter
   PLitInt,
   PLitFloat,
   PLitFloatUnsuffixed,
-  PLitNil,
   PLitBool
 }
 
@@ -332,7 +331,6 @@ impl LitTypePrinter
       PLitInt => "int",
       PLitFloat => "float",
       PLitFloatUnsuffixed => "unsuffixed float",
-      PLitNil => "nil",
       PLitBool => "boolean"
     }
   }
@@ -347,7 +345,6 @@ impl LitTypePrinter
       PLitInt => "38",
       PLitFloat => "0.01f32",
       PLitFloatUnsuffixed => "0.1",
-      PLitNil => "()",
       PLitBool => "true"
     }
   }

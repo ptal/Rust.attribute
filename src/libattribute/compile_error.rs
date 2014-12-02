@@ -14,6 +14,7 @@
 
 pub use syntax::ext::base::ExtCtxt;
 pub use syntax::codemap::Span;
+use compile_error::CompileErrorLevel::*;
 
 #[deriving(Clone)]
 pub enum CompileErrorLevel
