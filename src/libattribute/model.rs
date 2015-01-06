@@ -23,7 +23,7 @@ use model::LitTypePrinter::*;
 use model::AttributeLitModel::*;
 use compile_error::CompileErrorLevel::*;
 
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct AttributeValue<T>
 {
   pub value: Option<T>,
@@ -78,7 +78,7 @@ impl<T: Clone> AttributeValue<T>
   }
 }
 
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct AttributeInfo
 {
   pub name: InternedString,
@@ -135,7 +135,7 @@ impl AttributeInfo
   }
 }
 
-#[deriving(Clone)]
+#[derive(Clone)]
 pub enum AttributeModel
 {
   UnitValue(AttributeValue<()>),
@@ -143,7 +143,7 @@ pub enum AttributeModel
   SubAttribute(AttributeArray)
 }
 
-#[deriving(Clone)]
+#[derive(Clone)]
 pub enum AttributeLitModel
 {
   MLitStr(AttributeValue<(InternedString, StrStyle)>),
@@ -307,6 +307,7 @@ pub fn lit_to_lit_printer(lit: &Lit_) -> LitTypePrinter
   }
 }
 
+#[derive(Copy)]
 pub enum LitTypePrinter
 {
   PLitStr,
