@@ -18,8 +18,6 @@
 #![license = "Apache v2"]
 #![crate_type = "dylib"]
 
-#![feature(globs)]
-
 extern crate rustc;
 extern crate syntax;
 
