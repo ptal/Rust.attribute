@@ -13,10 +13,10 @@
 // limitations under the License.
 
 #![crate_name = "attribute"]
-#![experimental]
-#![comment = "Attribute Library"]
-#![license = "Apache v2"]
+#![unstable]
 #![crate_type = "dylib"]
+
+#![feature(rustc_private,core)]
 
 extern crate rustc;
 extern crate syntax;

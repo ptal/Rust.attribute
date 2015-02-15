@@ -160,7 +160,8 @@ pub type AttributeArray = Vec<AttributeInfo>;
 
 pub mod access
 {
-  pub use super::*;
+  use super::*;
+
   pub fn by_name<'a>(array: &'a AttributeArray, name: &'static str) -> &'a AttributeInfo
   {
     let interned = InternedString::new(name);
