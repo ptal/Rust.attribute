@@ -84,7 +84,7 @@ impl DuplicateAttribute
   {
     let extra_msg = self.extra_msg.unwrap_or("");
     self.level.issue(cx, span,
-      format!("Duplicate attribute. {}", extra_msg).as_slice());
+      format!("Duplicate attribute. {}", extra_msg).as_str());
     if !self.level.is_silent() {
       cx.span_note(previous_span,
         "Previous declaration here.");

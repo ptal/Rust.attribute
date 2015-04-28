@@ -110,7 +110,7 @@ fn lit_mismatch(cx: &ExtCtxt, mlit: AttributeLitModel, lit: Lit) -> AttributeLit
   cx.span_err(lit.span,
     format!("Expected {} literal (e.g. `key = {}`) but got {} literal (e.g. `key = {}`).",
       mlit_printer.type_to_str(), mlit_printer.type_example_to_str(),
-      lit_printer.type_to_str(), lit_printer.type_example_to_str()).as_slice());
+      lit_printer.type_to_str(), lit_printer.type_example_to_str()).as_str());
   mlit
 }
 

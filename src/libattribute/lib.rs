@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #![crate_name = "attribute"]
-#![unstable]
 #![crate_type = "dylib"]
 
-#![feature(rustc_private,core)]
+#![feature(rustc_private,convert)]
 
 extern crate rustc;
 extern crate syntax;

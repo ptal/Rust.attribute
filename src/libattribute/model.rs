@@ -308,7 +308,7 @@ pub fn lit_to_lit_printer(lit: &Lit_) -> LitTypePrinter
   }
 }
 
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub enum LitTypePrinter
 {
   PLitStr,
